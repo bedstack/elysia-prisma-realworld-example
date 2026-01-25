@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "@/shared/constants";
 import { RealWorldError } from "@/shared/errors";
 import { auth } from "@/shared/plugins";
 import { slugify } from "@/shared/utils";
@@ -27,8 +28,8 @@ export const articlesPlugin = new Elysia({
 						tag: tagName,
 						author: authorUsername,
 						favorited: favoritedByUsername,
-						limit,
-						offset,
+						limit = DEFAULT_LIMIT,
+						offset = DEFAULT_OFFSET,
 					},
 					auth: { currentUserId },
 				}) => {
@@ -132,7 +133,7 @@ export const articlesPlugin = new Elysia({
 			.get(
 				"/feed",
 				async ({
-					query: { limit, offset },
+					query: { limit = DEFAULT_LIMIT, offset = DEFAULT_OFFSET },
 					auth: { currentUserId },
 				}) => {
 					const enrichedArticles = await db.article.findMany({

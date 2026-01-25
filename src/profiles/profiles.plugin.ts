@@ -6,103 +6,101 @@ import { auth } from "@/shared/plugins";
 import { ProfileResponseDto } from "./dto";
 import { toResponse } from "./mappers";
 
-export const profiles = new Elysia({ tags: ["Profiles"] })
-	.use(auth)
-	.group(
-		"/profiles",
-		{
-			params: t.Object({
-				username: t.String({
-					examples: ["jake"],
-				}),
+export const profiles = new Elysia({ tags: ["Profiles"] }).use(auth).group(
+	"/profiles",
+	{
+		params: t.Object({
+			username: t.String({
+				examples: ["jake"],
 			}),
-		},
-		(app) =>
-			app
-				.get(
-					"/:username",
-					async ({ params: { username }, auth: { currentUserId } }) => {
-						const profile = await db.user.findFirstOrThrow({
-							where: { username },
-						});
-						const [{ exists: following } = { exists: false }] =
-							await db.$queryRaw<{ exists: boolean }[]>`
+		}),
+	},
+	(app) =>
+		app
+			.get(
+				"/:username",
+				async ({ params: { username }, auth: { currentUserId } }) => {
+					const profile = await db.user.findFirstOrThrow({
+						where: { username },
+					});
+					const [{ exists: following } = { exists: false }] =
+						await db.$queryRaw<{ exists: boolean }[]>`
 						SELECT EXISTS (
 							SELECT 1
 							FROM "_UserFollows"
 							WHERE "A" = ${currentUserId} AND "B" = ${profile.id}
 						) AS "exists"
 					`;
-						return toResponse(profile, following);
-					},
-					{
-						detail: {
-							summary: "Get Profile",
-							description:
-								"Authentication optional, returns a [Profile](docs#model/profile)",
-						},
-						response: ProfileResponseDto,
-					},
-				)
-				.guard({
-					auth: true,
+					return toResponse(profile, following);
+				},
+				{
 					detail: {
-						security: [{ tokenAuth: [] }],
-						description: "Authentication required",
+						summary: "Get Profile",
+						description:
+							"Authentication optional, returns a [Profile](docs#model/profile)",
 					},
-				})
-				.post(
-					"/:username/follow",
-					async ({ params: { username }, auth: { currentUserId } }) => {
-						const user = await db.user.findFirstOrThrow({
-							where: { username },
+					response: ProfileResponseDto,
+				},
+			)
+			.guard({
+				auth: true,
+				detail: {
+					security: [{ tokenAuth: [] }],
+					description: "Authentication required",
+				},
+			})
+			.post(
+				"/:username/follow",
+				async ({ params: { username }, auth: { currentUserId } }) => {
+					const user = await db.user.findFirstOrThrow({
+						where: { username },
+					});
+					// TODO: Make this a db constraint
+					if (user.id === currentUserId) {
+						throw new RealWorldError(StatusCodes.UNPROCESSABLE_ENTITY, {
+							profile: ["cannot be followed by yourself"],
 						});
-						// TODO: Make this a db constraint
-						if (user.id === currentUserId) {
-							throw new RealWorldError(StatusCodes.UNPROCESSABLE_ENTITY, {
-								profile: ["cannot be followed by yourself"],
-							});
-						}
-						await db.user.update({
-							where: { id: currentUserId },
-							data: { following: { connect: { id: user.id } } },
+					}
+					await db.user.update({
+						where: { id: currentUserId },
+						data: { following: { connect: { id: user.id } } },
+					});
+					return toResponse(user, true);
+				},
+				{
+					detail: {
+						summary: "Follow user",
+						description:
+							"Authentication required, returns a [Profile](docs#model/profile)",
+					},
+					response: ProfileResponseDto,
+				},
+			)
+			.delete(
+				"/:username/follow",
+				async ({ params: { username }, auth: { currentUserId } }) => {
+					const user = await db.user.findFirstOrThrow({
+						where: { username },
+					});
+					// TODO: Make this a db constraint
+					if (user.id === currentUserId) {
+						throw new RealWorldError(StatusCodes.UNPROCESSABLE_ENTITY, {
+							profile: ["cannot be unfollowed by yourself"],
 						});
-						return toResponse(user, true);
+					}
+					await db.user.update({
+						where: { id: currentUserId },
+						data: { following: { disconnect: { id: user.id } } },
+					});
+					return toResponse(user, false);
+				},
+				{
+					detail: {
+						summary: "Unfollow user",
+						description:
+							"Authentication required, returns a [Profile](docs#model/profile)",
 					},
-					{
-						detail: {
-							summary: "Follow user",
-							description:
-								"Authentication required, returns a [Profile](docs#model/profile)",
-						},
-						response: ProfileResponseDto,
-					},
-				)
-				.delete(
-					"/:username/follow",
-					async ({ params: { username }, auth: { currentUserId } }) => {
-						const user = await db.user.findFirstOrThrow({
-							where: { username },
-						});
-						// TODO: Make this a db constraint
-						if (user.id === currentUserId) {
-							throw new RealWorldError(StatusCodes.UNPROCESSABLE_ENTITY, {
-								profile: ["cannot be unfollowed by yourself"],
-							});
-						}
-						await db.user.update({
-							where: { id: currentUserId },
-							data: { following: { disconnect: { id: user.id } } },
-						});
-						return toResponse(user, false);
-					},
-					{
-						detail: {
-							summary: "Unfollow user",
-							description:
-								"Authentication required, returns a [Profile](docs#model/profile)",
-						},
-						response: ProfileResponseDto,
-					},
-				),
-	);
+					response: ProfileResponseDto,
+				},
+			),
+);

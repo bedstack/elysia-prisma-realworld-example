@@ -1,9 +1,11 @@
-import { openapi as openapiPlugin } from "@bedtime-coders/elysia-openapi";
+import { openapi as openapiPlugin } from "@elysiajs/openapi";
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { description, title } from "../../../package.json";
 
 const path = "/docs";
+
+type ScalarOptions = NonNullable<Parameters<typeof openapiPlugin>[0]>["scalar"];
 
 export const openapi = new Elysia()
 	.use(staticPlugin())
@@ -23,13 +25,11 @@ export const openapi = new Elysia()
 					},
 				},
 			},
-			exclude: ["/"],
-			scalarVersion: "1.31.10",
 			path,
-			scalarConfig: {
+			scalar: {
 				favicon: "/public/icon-dark.svg",
 				persistAuth: true,
-			},
+			} as ScalarOptions,
 		}),
 	)
 	.get("/", ({ redirect }) => redirect(path));

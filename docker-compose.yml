@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: yam
-      POSTGRES_PASSWORD: yam123
-      POSTGRES_DB: bedstack
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: myapp
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -14,9 +14,9 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: yam
-      POSTGRES_PASSWORD: yam123
-      POSTGRES_DB: bedstack_test
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: myapp_test
     ports:
       - "${DB_TEST_PORT:-5433}:5432"
     volumes:

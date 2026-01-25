@@ -1,5 +1,6 @@
 import { openapi as openapiPlugin } from "@elysiajs/openapi";
 import { staticPlugin } from "@elysiajs/static";
+import type { Type } from "arktype";
 import { Elysia } from "elysia";
 import { description, title } from "../../../package.json";
 
@@ -30,6 +31,17 @@ export const openapi = new Elysia()
 				favicon: "/public/icon-dark.svg",
 				persistAuth: true,
 			} as ScalarOptions,
+			/**
+			 * Custom mapping from ArkType to JSON Schema for OpenAPI documentation.
+			 * Uses ArkType's native toJsonSchema with a fallback to handle
+			 * non-serializable constraints gracefully.
+			 */
+			mapJsonSchema: {
+				arktype: (type: Type) =>
+					type.toJsonSchema({
+						fallback: (ctx) => ctx.base,
+					}),
+			},
 		}),
 	)
 	.get("/", ({ redirect }) => redirect(path));

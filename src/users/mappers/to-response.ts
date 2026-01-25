@@ -1,7 +1,6 @@
 import type { User } from "@prisma/client";
 import type { SignFn } from "@/shared/plugins";
-import type { ModelsStatic } from "@/shared/types/elysia";
-import type { usersModel } from "../users.model";
+import type { UserResponseDto } from "../dto";
 
 /**
  * Map a user to a response
@@ -12,7 +11,7 @@ import type { usersModel } from "../users.model";
 export const toResponse = async (
 	{ email, username, bio, image, id }: User,
 	sign: SignFn,
-): Promise<ModelsStatic<typeof usersModel.models>["User"]> => ({
+): Promise<UserResponseDto> => ({
 	user: {
 		token: await sign({ uid: id, email, username }),
 		email,

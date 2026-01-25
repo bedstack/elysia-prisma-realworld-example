@@ -1,105 +1,117 @@
-<div align='center'>
+# ![RealWorld Example App](assets/logo.png)
 
-<h1>Bepstack</h1>
+> ### ElysiaJS + Prisma ORM codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
 
-[![Tests Status](https://github.com/bedtime-coders/bepstack/actions/workflows/tests.yml/badge.svg?event=push&branch=main&)](https://github.com/bedtime-coders/bepstack/actions/workflows/tests.yml?query=branch%3Amain+event%3Apush) [![Discord](https://img.shields.io/discord/1164270344115335320?label=Chat&color=5865f4&logo=discord&labelColor=121214)](https://discord.gg/8UcP9QB5AV) [![License](https://custom-icon-badges.demolab.com/github/license/bedtime-coders/bepstack?label=License&color=blue&logo=law&labelColor=0d1117)](https://github.com/bedtime-coders/bepstack/blob/main/LICENSE) [![Bun](https://img.shields.io/badge/Bun-14151a?logo=bun&logoColor=fbf0df)](https://bun.sh/) [![ElysiaJS](https://custom-icon-badges.demolab.com/badge/ElysiaJS-0f172b.svg?logo=elysia)](https://elysiajs.com/) [![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) [![Biome](https://img.shields.io/badge/Biome-24272f?logo=biome&logoColor=f6f6f9)](https://biomejs.dev/) [![Scalar](https://img.shields.io/badge/Scalar-080808?logo=scalar&logoColor=e7e7e7)](https://scalar.com/) [![Star](https://custom-icon-badges.demolab.com/github/stars/bedtime-coders/bepstack?logo=star&logoColor=373737&label=Star)](https://github.com/bedtime-coders/bepstack/stargazers/)
+### [Demo](https://demo.realworld.show)&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
 
+[![Tests Status](https://github.com/bedstack/elysia-prisma-realworld-example/actions/workflows/tests.yml/badge.svg?event=push&branch=main&)](https://github.com/bedstack/elysia-prisma-realworld-example/actions/workflows/tests.yml?query=branch%3Amain+event%3Apush) [![License](https://custom-icon-badges.demolab.com/github/license/bedstack/elysia-prisma-realworld-example?label=License&color=blue&logo=law&labelColor=0d1117)](https://github.com/bedstack/elysia-prisma-realworld-example/blob/main/LICENSE) [![ElysiaJS](https://custom-icon-badges.demolab.com/badge/ElysiaJS-0f172b.svg?logo=elysia)](https://elysiajs.com/) [![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) [![Scalar](https://img.shields.io/badge/Scalar-080808?logo=scalar&logoColor=e7e7e7)](https://scalar.com/) [![Bun](https://img.shields.io/badge/Bun-14151a?logo=bun&logoColor=fbf0df)](https://bun.com/) [![Biome](https://img.shields.io/badge/Biome-24272f?logo=biome&logoColor=f6f6f9)](https://biomejs.dev/) [![Star](https://custom-icon-badges.demolab.com/github/stars/bedstack/elysia-prisma-realworld-example?logo=star&logoColor=373737&label=Star)](https://github.com/bedstack/elysia-prisma-realworld-example/stargazers/)
 
-[Bun](https://bun.sh) + [ElysiaJS](https://elysiajs.com) + [Prisma](https://www.prisma.io/) Stack
+This codebase was created to demonstrate a fully fledged backend application built with **[ElysiaJS](https://elysiajs.com/)** and **[Prisma ORM](https://www.prisma.io/)** including CRUD operations, authentication, routing, pagination, and more.
 
-</div>
+We've gone to great lengths to adhere to the **ElysiaJS** and **Prisma ORM** community styleguides & best practices.
 
-## What is this?
+For more information on how this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
-**Bepstack** is a collection of bleeding-edge technologies to build modern web applications.
+# How it works
 
-Including:
+## Architecture
 
-- **B**: [Bun](https://bun.sh) - Runtime + package manager, [Biome](https://biomejs.dev) - Code quality
-- **E**: [ElysiaJS](https://elysiajs.com) - HTTP Framework
-- **P**: [Prisma](https://www.prisma.io) - ORM
+This project follows the [Bedstack](https://bedstack.js.org/) architecture - a modular, layered approach to building TypeScript backends:
 
-This project demonstrates the stack in action via a [RealWorld](https://github.com/gothinkster/realworld) example.
+- **Modular structure** - Each domain (users, articles, comments, etc.) is a self-contained module with its own plugin, model, and DTOs
+- **Layered design** - Clear separation between Controller (HTTP handling) → Service (business logic) → Repository (data access)
+- **Type-safe data flow** - DTOs define request/response shapes, mappers transform between layers, schemas define database tables
 
-## Environment Configuration
+```
+src/
+├── users/          # User module
+│   ├── users.plugin.ts
+│   ├── users.model.ts
+│   ├── interfaces/
+│   └── mappers/
+├── articles/       # Article module (same structure)
+├── shared/         # Shared utilities and error handling
+└── core/           # Core app setup, db, env
+```
 
-Production and shared environment variables are defined in `src/core/env.ts`.
+[Read more about the Bedstack architecture →](https://bedstack.js.org/)
 
-Test-specific environment variables are now defined in `src/core/test-env.ts` and are only used by test scripts and test runners. This keeps test configuration isolated from production config.
+## Technologies
 
-## Development
+- **[ElysiaJS](https://elysiajs.com/)** - Web framework for HTTP
+- **[Prisma ORM](https://www.prisma.io/)** - TypeScript ORM for PostgreSQL
+- **[Scalar](https://scalar.com/)** - API documentation
+- **[Bun](https://bun.sh/)** - JavaScript runtime and package manager
+- **[Biome](https://biomejs.dev/)** - Linting and formatting
 
-1. Install dependencies
+# Getting started
 
-   ```bash
-   bun install
-   ```
+1. **Install dependencies**
 
-2. Copy `.env.example` to `.env` and fill in the values
+    ```sh
+    bun i
+    ```
 
-   ```bash
+2. **Create a `.env` file**
+
+   ```sh
    cp .env.example .env
    ```
 
-3. Start the database server
+   Use the provided example values or replace them with your own.
 
-   ```bash
+3. **Ensure Docker daemon is running and start the database service**
+
+   ```sh
    bun db:start
    ```
 
-4. Push the database schema to the database
+4. **Push the schema to the database**
 
-   ```bash
+   ```sh
    bun db:push
    ```
 
-5. Start the development server
+5. **Run the development server**
 
-   ```bash
+   ```sh
    bun dev
    ```
 
-6. (Optional) Start the [database studio](https://www.prisma.io/studio)
+6. **Run the API tests**
+
+   ```sh
+   bun run test # not `bun test`!
+   ```
+
+7. **(Optional) Start the [database studio](https://www.prisma.io/studio)**
    ```bash
    bun db:studio
    ```
 
-## Testing
-
-Run all tests:
-```bash
-bun run test # Not `bun test`!
-```
-
-Or run different test suites individually:
-```bash
-bun test:api # Run the API tests
-bun test:unit # Run the unit tests
-```
+# Deploy to production
 
 > [!TIP]
-> To create test-specific environment configuration, create a `.env.test` file. You may use `.env.test.example` as a template:
-> ```bash
-> cp .env.test.example .env.test
-> ```
+> See more info in ElysiaJS's [Deploy to production](https://elysiajs.com/patterns/deploy) pattern.
 
-## Building for production
+1. **Build the app**
 
-> [!TIP]
-> See more info in ElysiaJS's [building for production](https://elysiajs.com/tutorial.html#build-for-production) guide.
-
-1. Build the app
-
-   ```bash
+   ```sh
    bun run build # not `bun build`!
    ```
 
-2. Run the production server (preview)
+2. **Run the server**
 
-   ```bash
+   ```sh
    bun preview
    ```
 
-## Contributing
+# Need help?
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for more information, including how to set up your development environment.
+If you have questions or ideas:
+- Open a [GitHub Discussion](https://github.com/bedstack/elysia-prisma-realworld-example/discussions)
+- Open an [Issue](https://github.com/bedstack/elysia-prisma-realworld-example/issues) if you believe you found a bug
+
+# Contributors
+
+You are welcome to [contribute to the project](https://github.com/bedstack/elysia-prisma-realworld-example/blob/main/CONTRIBUTING.md)!

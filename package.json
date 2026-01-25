@@ -1,7 +1,7 @@
 {
-	"name": "bepstack",
-	"title": "Bepstack",
-	"description": "Bun + Elysia + Prisma = ❤️",
+	"name": "conduit-backend",
+	"title": "Conduit Backend",
+	"description": "Backend for Conduit - Medium.com clone, built with Elysia + Prisma",
 	"type": "module",
 	"scripts": {
 		"dev": "bun run --watch src/index.ts",

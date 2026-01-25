@@ -49,9 +49,7 @@ try {
 	}
 } catch {
 	console.error(
-		chalk.red(
-			"Server is not running, run the following command to start it:",
-		),
+		chalk.red("Server is not running, run the following command to start it:"),
 	);
 	console.info(chalk.cyan("bun dev"));
 	process.exit(1);

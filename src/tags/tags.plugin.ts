@@ -1,5 +1,6 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { db } from "@/core/db";
+import { TagsResponseDto } from "./dto";
 
 export const tags = new Elysia({
 	tags: ["Tags"],
@@ -15,11 +16,7 @@ export const tags = new Elysia({
 		detail: {
 			summary: "Get Tags",
 			description: "Returns a list of all tags. No authentication required.",
-			response: t.Object({
-				tags: t.Array(t.String(), {
-					examples: [["reactjs", "angularjs", "dragons"]],
-				}),
-			}),
 		},
+		response: TagsResponseDto,
 	},
 );

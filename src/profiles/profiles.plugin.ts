@@ -3,12 +3,11 @@ import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
 import { RealWorldError } from "@/shared/errors";
 import { auth } from "@/shared/plugins";
+import { ProfileResponseDto } from "./dto";
 import { toResponse } from "./mappers";
-import { profilesModel } from "./profiles.model";
 
 export const profiles = new Elysia({ tags: ["Profiles"] })
 	.use(auth)
-	.use(profilesModel)
 	.group(
 		"/profiles",
 		{
@@ -42,7 +41,7 @@ export const profiles = new Elysia({ tags: ["Profiles"] })
 							description:
 								"Authentication optional, returns a [Profile](docs#model/profile)",
 						},
-						response: "Profile",
+						response: ProfileResponseDto,
 					},
 				)
 				.guard({
@@ -76,7 +75,7 @@ export const profiles = new Elysia({ tags: ["Profiles"] })
 							description:
 								"Authentication required, returns a [Profile](docs#model/profile)",
 						},
-						response: "Profile",
+						response: ProfileResponseDto,
 					},
 				)
 				.delete(
@@ -103,7 +102,7 @@ export const profiles = new Elysia({ tags: ["Profiles"] })
 							description:
 								"Authentication required, returns a [Profile](docs#model/profile)",
 						},
-						response: "Profile",
+						response: ProfileResponseDto,
 					},
 				),
 	);

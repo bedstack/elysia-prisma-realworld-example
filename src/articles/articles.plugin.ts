@@ -5,14 +5,20 @@ import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "@/shared/constants";
 import { RealWorldError } from "@/shared/errors";
 import { auth } from "@/shared/plugins";
 import { slugify } from "@/shared/utils";
-import { ArticleQuery, articlesModel, FeedQuery } from "./articles.model";
+import {
+	ArticleFeedQueryDto,
+	ArticleResponseDto,
+	ArticlesResponseDto,
+	CreateArticleDto,
+	ListArticlesQueryDto,
+	UpdateArticleDto,
+} from "./dto";
 import { toArticlesResponse, toResponse } from "./mappers";
 
 export const articlesPlugin = new Elysia({
 	tags: ["Articles"],
 })
 	.use(auth)
-	.use(articlesModel)
 	.group("/articles", (app) =>
 		app
 			.get(
@@ -80,8 +86,8 @@ export const articlesPlugin = new Elysia({
 						description:
 							"Returns most recent articles globally by default, provide tag, author or favorited query parameter to filter results",
 					},
-					query: ArticleQuery,
-					response: "ArticlesResponse",
+					query: ListArticlesQueryDto,
+					response: ArticlesResponseDto,
 				},
 			)
 			.get(
@@ -114,7 +120,7 @@ export const articlesPlugin = new Elysia({
 						description:
 							"No authentication required, will return single article",
 					},
-					response: "Article",
+					response: ArticleResponseDto,
 				},
 			)
 			.guard({
@@ -172,8 +178,8 @@ export const articlesPlugin = new Elysia({
 						description:
 							"Can also take limit and offset query parameters like List Articles. Authentication required, will return multiple articles created by followed users, ordered by most recent first.",
 					},
-					query: FeedQuery,
-					response: "ArticlesResponse",
+					query: ArticleFeedQueryDto,
+					response: ArticlesResponseDto,
 				},
 			)
 			.post(
@@ -220,8 +226,8 @@ export const articlesPlugin = new Elysia({
 						summary: "Create Article",
 						description: "Authentication required, will return an Article",
 					},
-					body: "CreateArticle",
-					response: "Article",
+					body: CreateArticleDto,
+					response: ArticleResponseDto,
 				},
 			)
 			.put(
@@ -285,8 +291,8 @@ export const articlesPlugin = new Elysia({
 						description:
 							"Authentication required, returns the updated Article. The slug also gets updated when the title is changed.",
 					},
-					body: "UpdateArticle",
-					response: "Article",
+					body: UpdateArticleDto,
+					response: ArticleResponseDto,
 				},
 			)
 			.delete(
@@ -372,7 +378,7 @@ export const articlesPlugin = new Elysia({
 						summary: "Favorite Article",
 						description: "Authentication required, returns the Article",
 					},
-					response: "Article",
+					response: ArticleResponseDto,
 				},
 			)
 			.delete(
@@ -430,7 +436,7 @@ export const articlesPlugin = new Elysia({
 						summary: "Unfavorite Article",
 						description: "Authentication required, returns the Article",
 					},
-					response: "Article",
+					response: ArticleResponseDto,
 				},
 			),
 	);

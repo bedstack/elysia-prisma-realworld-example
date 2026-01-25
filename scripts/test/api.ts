@@ -36,22 +36,20 @@ const isWatchMode = values.watch || false;
 const DELAY_REQUEST = testEnv.DELAY_REQUEST;
 // Note: Newman doesn't support parallel execution, but we can reduce delays
 
-console.info(chalk.gray("Checking Bedstack health"));
+console.info(chalk.gray("Checking server health"));
 
 // first query the api to see if it's running
 try {
 	const response = await fetch(`${APIURL}/health`);
 	if (!response.ok) {
 		console.error(
-			chalk.red("Bedstack health check failed, couldn't run API tests"),
+			chalk.red("Server health check failed, couldn't run API tests"),
 		);
 		process.exit(1);
 	}
 } catch {
 	console.error(
-		chalk.red(
-			"Bedstack is not running, run the following command to start it:",
-		),
+		chalk.red("Server is not running, run the following command to start it:"),
 	);
 	console.info(chalk.cyan("bun dev"));
 	process.exit(1);

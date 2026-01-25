@@ -43,10 +43,16 @@ export function formatValidationError(error: ValidationError) {
 
 	for (const err of error.all) {
 		const path = "path" in err ? parsePath(err.path) : "general";
+		const errWithSummary = err as {
+			summary?: string;
+			schema?: { description?: string };
+		};
 		let message =
 			"schema" in err
-				? (err.schema.description ?? err.summary ?? "Invalid value")
-				: (err.summary ?? "Invalid value");
+				? (errWithSummary.schema?.description ??
+					errWithSummary.summary ??
+					"Invalid value")
+				: (errWithSummary.summary ?? "Invalid value");
 
 		// 🧼 Remove redundant prefix: "Property 'user.image' should be ..."
 		message = message.replace(/^Property '.*?' should /i, "should ");

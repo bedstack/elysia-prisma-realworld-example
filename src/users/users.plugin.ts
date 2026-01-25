@@ -4,12 +4,16 @@ import { db } from "@/core/db";
 import { env } from "@/core/plugins";
 import { assertNoConflicts, RealWorldError } from "@/shared/errors";
 import { auth } from "@/shared/plugins";
+import {
+	CreateUserDto,
+	LoginUserDto,
+	UpdateUserDto,
+	UserResponseDto,
+} from "./dto";
 import { toResponse } from "./mappers";
-import { usersModel } from "./users.model";
 
 export const usersPlugin = new Elysia({ tags: ["Auth"] })
 	.use(auth)
-	.use(usersModel)
 	.use(env)
 	.group("/users", (app) =>
 		app
@@ -38,8 +42,8 @@ export const usersPlugin = new Elysia({ tags: ["Auth"] })
 						description:
 							"No authentication required, returns a [User](docs#model/user)",
 					},
-					body: "LoginUser",
-					response: "User",
+					body: LoginUserDto,
+					response: UserResponseDto,
 				},
 			)
 			.post(
@@ -76,8 +80,8 @@ export const usersPlugin = new Elysia({ tags: ["Auth"] })
 						description:
 							"No authentication required, returns a [User](docs#model/user)",
 					},
-					body: "CreateUser",
-					response: "User",
+					body: CreateUserDto,
+					response: UserResponseDto,
 				},
 			),
 	)
@@ -98,7 +102,7 @@ export const usersPlugin = new Elysia({ tags: ["Auth"] })
 							"Authentication required, returns a [User](docs#model/user) that's the current user",
 						security: [{ tokenAuth: [] }],
 					},
-					response: "User",
+					response: UserResponseDto,
 					auth: true,
 				},
 			)
@@ -140,8 +144,8 @@ export const usersPlugin = new Elysia({ tags: ["Auth"] })
 							"Authentication required, returns the updated [User](docs#model/user)",
 						security: [{ tokenAuth: [] }],
 					},
-					body: "UpdateUser",
-					response: "User",
+					body: UpdateUserDto,
+					response: UserResponseDto,
 					auth: true,
 				},
 			),

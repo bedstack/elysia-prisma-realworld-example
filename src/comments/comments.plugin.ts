@@ -3,14 +3,18 @@ import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
 import { RealWorldError } from "@/shared/errors";
 import { auth } from "@/shared/plugins";
-import { CUID, commentsModel } from "./comments.model";
+import {
+	CommentIdParamDto,
+	CommentResponseDto,
+	CommentsResponseDto,
+	CreateCommentDto,
+} from "./dto";
 import { toCommentResponse, toCommentsResponse } from "./mappers";
 
 export const commentsPlugin = new Elysia({
 	tags: ["Comments"],
 })
 	.use(auth)
-	.use(commentsModel)
 	.group("/articles/:slug/comments", (app) =>
 		app
 			.get(
@@ -44,7 +48,7 @@ export const commentsPlugin = new Elysia({
 						summary: "Get Comments from an Article",
 						description: "Get the comments for of an article. Auth is optional",
 					},
-					response: "CommentsResponse",
+					response: CommentsResponseDto,
 				},
 			)
 			.guard({
@@ -90,8 +94,8 @@ export const commentsPlugin = new Elysia({
 						summary: "Create a Comment for an Article",
 						description: "Create a comment for an article. Auth is required",
 					},
-					body: "CreateComment",
-					response: "CommentResponse",
+					body: CreateCommentDto,
+					response: CommentResponseDto,
 				},
 			)
 			.delete(
@@ -125,7 +129,7 @@ export const commentsPlugin = new Elysia({
 						summary: "Delete a Comment for an Article",
 						description: "Delete a comment for an article. Auth is required",
 					},
-					params: t.Object({ id: CUID, slug: t.String() }),
+					params: CommentIdParamDto,
 					response: {
 						[StatusCodes.NO_CONTENT]: t.Void(),
 					},

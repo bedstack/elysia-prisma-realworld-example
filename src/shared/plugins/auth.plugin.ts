@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
-import { env } from "@/core/env";
+import env from "@/core/env";
 import { RealWorldError } from "@/shared/errors";
 import { name } from "../../../package.json";
 import jwt from "./jwt.plugin";

@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
-import { env } from "@/core/plugins";
+import env from "@/core/env";
 import { assertNoConflicts, RealWorldError } from "@/shared/errors";
 import { auth } from "@/shared/plugins";
 import {
@@ -14,12 +14,11 @@ import { toResponse } from "./mappers";
 
 export const usersPlugin = new Elysia({ tags: ["Auth"] })
 	.use(auth)
-	.use(env)
 	.group("/users", (app) =>
 		app
 			.post(
 				"/login",
-				async ({ body: { user }, auth: { sign }, env }) => {
+				async ({ body: { user }, auth: { sign } }) => {
 					const foundUser = await db.user.findFirstOrThrow({
 						where: { email: user.email },
 					});
@@ -48,7 +47,7 @@ export const usersPlugin = new Elysia({ tags: ["Auth"] })
 			)
 			.post(
 				"/",
-				async ({ body: { user }, auth: { sign }, env }) => {
+				async ({ body: { user }, auth: { sign } }) => {
 					await assertNoConflicts(
 						"user",
 						{
@@ -108,7 +107,7 @@ export const usersPlugin = new Elysia({ tags: ["Auth"] })
 			)
 			.put(
 				"/",
-				async ({ body: { user }, auth: { sign, currentUserId }, env }) => {
+				async ({ body: { user }, auth: { sign, currentUserId } }) => {
 					await assertNoConflicts(
 						"user",
 						{

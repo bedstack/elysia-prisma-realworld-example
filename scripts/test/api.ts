@@ -5,7 +5,7 @@ import { $ } from "bun";
 import chalk from "chalk";
 import newman from "newman";
 import { debounce } from "radashi";
-import { testEnv } from "@/core/test-env";
+import testEnv from "@/core/test-env";
 
 const APIURL = testEnv.APIURL;
 const USERNAME = testEnv.USERNAME;

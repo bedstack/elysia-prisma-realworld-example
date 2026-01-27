@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { app } from "@/core/app";
-import { env } from "@/core/env";
+import env from "@/core/env";
 
 console.info(chalk.gray("Starting server"));
 

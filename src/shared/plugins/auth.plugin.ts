@@ -1,19 +1,20 @@
-import { Elysia, t } from "elysia";
+import { type } from "arktype";
+import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
-import { env } from "@/core/env";
+import env from "@/core/env";
 import { RealWorldError } from "@/shared/errors";
 import { name } from "../../../package.json";
 import jwt from "./jwt.plugin";
 import { token } from "./token.plugin";
 
-const JwtPayload = t.Object({
-	uid: t.String(),
-	email: t.String(),
-	username: t.String(),
+const JwtPayload = type({
+	uid: "string",
+	email: "string",
+	username: "string",
 });
 
-type JwtPayload = typeof JwtPayload.static;
+type JwtPayload = typeof JwtPayload.infer;
 
 export type SignFn = (payload: JwtPayload) => Promise<string>;
 

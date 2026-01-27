@@ -1,4 +1,5 @@
-import { Elysia, t } from "elysia";
+import { type } from "arktype";
+import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
 import { RealWorldError } from "@/shared/errors";
@@ -9,10 +10,8 @@ import { toResponse } from "./mappers";
 export const profiles = new Elysia({ tags: ["Profiles"] }).use(auth).group(
 	"/profiles",
 	{
-		params: t.Object({
-			username: t.String({
-				examples: ["jake"],
-			}),
+		params: type({
+			username: "string",
 		}),
 	},
 	(app) =>

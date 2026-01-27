@@ -1,38 +1,39 @@
 // Like @elysiajs/jwt, but with iat as a number (correctly, per RFC7519#section-4.1.6)
 
-import type { Static, TSchema } from "@sinclair/typebox";
-import { Type as t } from "@sinclair/typebox";
-import { Elysia, getSchemaValidator, ValidationError } from "elysia";
+import { type Type, type } from "arktype";
+import { Elysia } from "elysia";
 import {
 	type CryptoKey,
-	type JWK,
-	type JWSHeaderParameters,
-	type JWTPayload,
+	type JWK as Jwk,
+	type JWSHeaderParameters as JwsHeaderParameters,
+	type JWTPayload as JwtPayload,
 	jwtVerify,
 	type KeyObject,
-	SignJWT,
+	SignJWT as SignJwt,
 } from "jose";
 
 type UnwrapSchema<
-	Schema extends TSchema | undefined,
+	Schema extends Type | undefined,
 	Fallback = unknown,
-> = Schema extends TSchema ? Static<NonNullable<Schema>> : Fallback;
+> = Schema extends Type ? Schema["infer"] : Fallback;
 
-export interface JWTPayloadSpec {
-	iss?: string;
-	sub?: string;
-	aud?: string | string[];
-	jti?: string;
-	nbf?: number;
-	exp?: number;
-	iat?: number;
-}
+const JwtPayloadSpec = type({
+	"iss?": "string",
+	"sub?": "string",
+	"aud?": "string | string[]",
+	"jti?": "string",
+	"nbf?": "string | number",
+	"exp?": "string | number",
+	"iat?": "number", // See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
+});
 
-export interface JWTOption<
+export type JwtPayloadSpec = typeof JwtPayloadSpec.infer;
+
+export interface JwtOption<
 	Name extends string | undefined = "jwt",
-	Schema extends TSchema | undefined = undefined,
-> extends JWSHeaderParameters,
-		Omit<JWTPayload, "nbf" | "exp"> {
+	Schema extends Type | undefined = undefined,
+> extends JwsHeaderParameters,
+		Omit<JwtPayload, "nbf" | "exp"> {
 	/**
 	 * Name to decorate method as
 	 *
@@ -55,7 +56,7 @@ export interface JWTOption<
 	/**
 	 * JWT Secret
 	 */
-	secret: string | Uint8Array | CryptoKey | JWK | KeyObject;
+	secret: string | Uint8Array | CryptoKey | Jwk | KeyObject;
 	/**
 	 * Type strict validation for JWT payload
 	 */
@@ -78,7 +79,7 @@ export interface JWTOption<
 
 export const jwt = <
 	const Name extends string = "jwt",
-	const Schema extends TSchema | undefined = undefined,
+	const Schema extends Type | undefined = undefined,
 >({
 	name = "jwt" as Name,
 	secret,
@@ -92,31 +93,13 @@ export const jwt = <
 	exp,
 	...payload
 }: // End JWT Payload
-JWTOption<Name, Schema>) => {
+JwtOption<Name, Schema>) => {
 	if (!secret) throw new Error("Secret can't be empty");
 
 	const key =
 		typeof secret === "string" ? new TextEncoder().encode(secret) : secret;
 
-	const validator = schema
-		? getSchemaValidator(
-				t.Intersect([
-					schema,
-					t.Object({
-						iss: t.Optional(t.String()),
-						sub: t.Optional(t.String()),
-						aud: t.Optional(t.Union([t.String(), t.Array(t.String())])),
-						jti: t.Optional(t.String()),
-						nbf: t.Optional(t.Union([t.String(), t.Number()])),
-						exp: t.Optional(t.Union([t.String(), t.Number()])),
-						iat: t.Optional(t.Number()), // See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
-					}),
-				]),
-				{
-					modules: t.Module({}),
-				},
-			)
-		: undefined;
+	const validator = schema ? schema.and(JwtPayloadSpec) : undefined;
 
 	return new Elysia({
 		name: "ElysiaJS JWT plugin",
@@ -133,7 +116,7 @@ JWTOption<Name, Schema>) => {
 	}).decorate(name as Name extends string ? Name : "jwt", {
 		sign(
 			morePayload: UnwrapSchema<Schema, Record<string, string | number>> &
-				Omit<JWTPayloadSpec, "exp" | "nbf"> & {
+				Omit<JwtPayloadSpec, "exp" | "nbf"> & {
 					exp?: string | number;
 					nbf?: string | number;
 				},
@@ -144,7 +127,7 @@ JWTOption<Name, Schema>) => {
 				...claimsMorePayload
 			} = morePayload;
 
-			let jwt = new SignJWT({
+			let jwt = new SignJwt({
 				...payload,
 				...claimsMorePayload,
 			}).setProtectedHeader({
@@ -165,20 +148,18 @@ JWTOption<Name, Schema>) => {
 		async verify(
 			jwt?: string,
 		): Promise<
-			| (UnwrapSchema<Schema, Record<string, string | number>> & JWTPayloadSpec)
+			| (UnwrapSchema<Schema, Record<string, string | number>> & JwtPayloadSpec)
 			| false
 		> {
 			if (!jwt) return false;
 
 			try {
-				// biome-ignore lint/suspicious/noExplicitAny: See https://github.com/elysiajs/elysia-jwt/blob/main/src/index.ts#L177
-				const data: any = (await jwtVerify(jwt, key)).payload;
+				const data = (await jwtVerify(jwt, key)).payload;
 
-				// biome-ignore lint/style/noNonNullAssertion: See https://github.com/elysiajs/elysia-jwt/blob/main/src/index.ts#L179
-				if (validator && !validator!.Check(data))
-					throw new ValidationError("JWT", validator, data);
+				if (validator && !validator.allows(data)) return false;
 
-				return data;
+				return data as UnwrapSchema<Schema, Record<string, string | number>> &
+					JwtPayloadSpec;
 			} catch (_) {
 				return false;
 			}

@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { RealWorldError } from "@/shared/errors";
 import { db } from "../db";
@@ -7,10 +7,10 @@ export const health = new Elysia({
 	tags: ["Health"],
 }).get(
 	"health",
-	async ({ set }) => {
+	async ({ status }) => {
 		try {
 			await db.$queryRaw`SELECT 1`;
-			set.status = StatusCodes.NO_CONTENT;
+			return status(StatusCodes.NO_CONTENT);
 		} catch {
 			throw new RealWorldError(StatusCodes.SERVICE_UNAVAILABLE, {
 				database: ["not healthy"],
@@ -21,11 +21,11 @@ export const health = new Elysia({
 		detail: {
 			summary: "Health check",
 			description: "Check the health of the application",
-		},
-		response: {
-			[StatusCodes.NO_CONTENT]: t.Void({
-				description: "The application is healthy",
-			}),
+			responses: {
+				[StatusCodes.NO_CONTENT]: {
+					description: "No content",
+				},
+			},
 		},
 	},
 );

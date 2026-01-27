@@ -1,4 +1,3 @@
-import { Type as T } from "@sinclair/typebox";
 import { type } from "arktype";
 import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
@@ -9,22 +8,15 @@ import { name } from "../../../package.json";
 import jwt from "./jwt.plugin";
 import { token } from "./token.plugin";
 
-const JwtPayloadSchema = type({
+const JwtPayload = type({
 	uid: "string",
 	email: "string",
 	username: "string",
 });
 
-type JwtPayload = typeof JwtPayloadSchema.infer;
+type JwtPayload = typeof JwtPayload.infer;
 
 export type SignFn = (payload: JwtPayload) => Promise<string>;
-
-// TypeBox schema required by jwt.plugin.ts's getSchemaValidator
-const JwtPayloadTypebox = T.Object({
-	uid: T.String(),
-	email: T.String(),
-	username: T.String(),
-});
 
 export const auth = new Elysia()
 	.use(
@@ -32,7 +24,7 @@ export const auth = new Elysia()
 			secret: env.JWT_SECRET,
 			exp: "24h",
 			iss: name,
-			schema: JwtPayloadTypebox,
+			schema: JwtPayload,
 		}),
 	)
 	.use(token())

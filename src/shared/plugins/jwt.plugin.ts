@@ -4,12 +4,12 @@ import { type Type, type } from "arktype";
 import { Elysia } from "elysia";
 import {
 	type CryptoKey,
-	type JWK,
-	type JWSHeaderParameters,
-	type JWTPayload,
+	type JWK as Jwk,
+	type JWSHeaderParameters as JwsHeaderParameters,
+	type JWTPayload as JwtPayload,
 	jwtVerify,
 	type KeyObject,
-	SignJWT,
+	SignJWT as SignJwt,
 } from "jose";
 
 type UnwrapSchema<
@@ -27,13 +27,13 @@ const JwtPayloadSpec = type({
 	"iat?": "number", // See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
 });
 
-export type JWTPayloadSpec = typeof JwtPayloadSpec.infer;
+export type JwtPayloadSpec = typeof JwtPayloadSpec.infer;
 
-export interface JWTOption<
+export interface JwtOption<
 	Name extends string | undefined = "jwt",
 	Schema extends Type | undefined = undefined,
-> extends JWSHeaderParameters,
-		Omit<JWTPayload, "nbf" | "exp"> {
+> extends JwsHeaderParameters,
+		Omit<JwtPayload, "nbf" | "exp"> {
 	/**
 	 * Name to decorate method as
 	 *
@@ -56,7 +56,7 @@ export interface JWTOption<
 	/**
 	 * JWT Secret
 	 */
-	secret: string | Uint8Array | CryptoKey | JWK | KeyObject;
+	secret: string | Uint8Array | CryptoKey | Jwk | KeyObject;
 	/**
 	 * Type strict validation for JWT payload
 	 */
@@ -93,7 +93,7 @@ export const jwt = <
 	exp,
 	...payload
 }: // End JWT Payload
-JWTOption<Name, Schema>) => {
+JwtOption<Name, Schema>) => {
 	if (!secret) throw new Error("Secret can't be empty");
 
 	const key =
@@ -116,7 +116,7 @@ JWTOption<Name, Schema>) => {
 	}).decorate(name as Name extends string ? Name : "jwt", {
 		sign(
 			morePayload: UnwrapSchema<Schema, Record<string, string | number>> &
-				Omit<JWTPayloadSpec, "exp" | "nbf"> & {
+				Omit<JwtPayloadSpec, "exp" | "nbf"> & {
 					exp?: string | number;
 					nbf?: string | number;
 				},
@@ -127,7 +127,7 @@ JWTOption<Name, Schema>) => {
 				...claimsMorePayload
 			} = morePayload;
 
-			let jwt = new SignJWT({
+			let jwt = new SignJwt({
 				...payload,
 				...claimsMorePayload,
 			}).setProtectedHeader({
@@ -148,7 +148,7 @@ JWTOption<Name, Schema>) => {
 		async verify(
 			jwt?: string,
 		): Promise<
-			| (UnwrapSchema<Schema, Record<string, string | number>> & JWTPayloadSpec)
+			| (UnwrapSchema<Schema, Record<string, string | number>> & JwtPayloadSpec)
 			| false
 		> {
 			if (!jwt) return false;
@@ -159,7 +159,7 @@ JWTOption<Name, Schema>) => {
 				if (validator && !validator.allows(data)) return false;
 
 				return data as UnwrapSchema<Schema, Record<string, string | number>> &
-					JWTPayloadSpec;
+					JwtPayloadSpec;
 			} catch (_) {
 				return false;
 			}

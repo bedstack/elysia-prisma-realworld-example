@@ -1,5 +1,5 @@
-import { type } from "arktype";
 import { Type as T } from "@sinclair/typebox";
+import { type } from "arktype";
 import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";

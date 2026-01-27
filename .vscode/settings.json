@@ -10,5 +10,6 @@
 
 	// Glob pattern to find test files. Defaults to the value shown below.
 	"bun.test.filePattern": "**/*{.test.,.spec.,_test_,_spec_}{js,ts,tsx,jsx,mts,cts}",
-	"typescript.tsdk": "node_modules/typescript/lib"
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"files.eol": "\n"
 }

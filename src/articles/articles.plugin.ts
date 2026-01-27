@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "@/shared/constants";
@@ -297,7 +297,7 @@ export const articlesPlugin = new Elysia({
 			)
 			.delete(
 				"/:slug",
-				async ({ params: { slug }, auth: { currentUserId }, set }) => {
+				async ({ params: { slug }, auth: { currentUserId }, status }) => {
 					const existingArticle = await db.article.findFirstOrThrow({
 						where: { slug },
 					});
@@ -312,15 +312,17 @@ export const articlesPlugin = new Elysia({
 						where: { id: existingArticle.id },
 					});
 
-					set.status = StatusCodes.NO_CONTENT;
+					return status(StatusCodes.NO_CONTENT);
 				},
 				{
 					detail: {
 						summary: "Delete Article",
+						responses: {
+							[StatusCodes.NO_CONTENT]: {
+								description: "No content",
+							},
+						},
 					},
-					response: t.Void({
-						description: "No content",
-					}),
 				},
 			)
 			.post(

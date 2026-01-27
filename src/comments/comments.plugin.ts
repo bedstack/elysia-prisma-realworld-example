@@ -1,4 +1,4 @@
-import { Elysia, NotFoundError, t } from "elysia";
+import { Elysia, NotFoundError } from "elysia";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/core/db";
 import { RealWorldError } from "@/shared/errors";
@@ -100,7 +100,7 @@ export const commentsPlugin = new Elysia({
 			)
 			.delete(
 				"/:id",
-				async ({ params: { slug, id }, auth: { currentUserId }, set }) => {
+				async ({ params: { slug, id }, auth: { currentUserId }, status }) => {
 					const article = await db.article.findFirstOrThrow({
 						where: { slug },
 					});
@@ -122,17 +122,19 @@ export const commentsPlugin = new Elysia({
 
 					await db.comment.delete({ where: { id } });
 
-					set.status = StatusCodes.NO_CONTENT;
+					return status(StatusCodes.NO_CONTENT);
 				},
 				{
 					detail: {
 						summary: "Delete a Comment for an Article",
 						description: "Delete a comment for an article. Auth is required",
+						responses: {
+							[StatusCodes.NO_CONTENT]: {
+								description: "No content",
+							},
+						},
 					},
 					params: CommentIdParamDto,
-					response: {
-						[StatusCodes.NO_CONTENT]: t.Void(),
-					},
 				},
 			),
 	);

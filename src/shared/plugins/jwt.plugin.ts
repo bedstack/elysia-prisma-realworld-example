@@ -17,15 +17,17 @@ type UnwrapSchema<
 	Fallback = unknown,
 > = Schema extends Type ? Schema["infer"] : Fallback;
 
-export interface JWTPayloadSpec {
-	iss?: string;
-	sub?: string;
-	aud?: string | string[];
-	jti?: string;
-	nbf?: number;
-	exp?: number;
-	iat?: number;
-}
+const JwtPayloadSpec = type({
+	"iss?": "string",
+	"sub?": "string",
+	"aud?": "string | string[]",
+	"jti?": "string",
+	"nbf?": "string | number",
+	"exp?": "string | number",
+	"iat?": "number", // See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
+});
+
+export type JWTPayloadSpec = typeof JwtPayloadSpec.infer;
 
 export interface JWTOption<
 	Name extends string | undefined = "jwt",
@@ -75,16 +77,6 @@ export interface JWTOption<
 	exp?: string | number;
 }
 
-const jwtPayloadSpec = type({
-	"iss?": "string",
-	"sub?": "string",
-	"aud?": "string | string[]",
-	"jti?": "string",
-	"nbf?": "string | number",
-	"exp?": "string | number",
-	"iat?": "number", // See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
-});
-
 export const jwt = <
 	const Name extends string = "jwt",
 	const Schema extends Type | undefined = undefined,
@@ -107,7 +99,7 @@ JWTOption<Name, Schema>) => {
 	const key =
 		typeof secret === "string" ? new TextEncoder().encode(secret) : secret;
 
-	const validator = schema ? schema.and(jwtPayloadSpec) : undefined;
+	const validator = schema ? schema.and(JwtPayloadSpec) : undefined;
 
 	return new Elysia({
 		name: "ElysiaJS JWT plugin",

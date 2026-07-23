@@ -58,7 +58,7 @@
 		"@types/newman": "^5.3.6",
 		"newman": "^6.2.1",
 		"pg": "^8.16.3",
-		"typescript": "^5.8.3"
+		"typescript": "^7.0.0"
 	},
 	"module": "src/index.js"
 }
